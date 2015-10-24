@@ -8,46 +8,55 @@ var UI = require('ui');
 var ajax = require('ajax');
 var Vibe = require('ui/vibe');
 
-var prettyObj = require('prettyPrintObject');
+//var prettyObj = require('prettyPrintObject');
 
 var chuck = 'http://api.icndb.com/jokes/random';
 
 var main = new UI.Card({
   title: 'Chuck Norris',
   subtitle: 'Jokes!',
-  body: 'Press any button.'
+  body: 'Press Select -->'
 });
 
-main.show();
 
 var joke = new UI.Card({
-  title: 'Joke',
+  title: 'Joke:',
   body: 'Pow!'
 });
 
+
+main.show();
+walkerTexasRanger();
+
 main.on('click', 'select', function (e) {
   joke.show();
-  main.hide();
-  displayJoke(joke);
 });
 
-function displayJoke (card) {
-  console.log(card);
-  card.title('Joke:');
-  card.body('pow!');
-  // Send a long vibration to the user wrist
+joke.on('click','select',walkerTexasRanger);
+        
+function walkerTexasRanger() {
+  joke.title('Joke');
+  joke.body('Pow');
   Vibe.vibrate('long');
   setTimeout(
     function () {
-      ajax({url: chuck,type: 'json'},function(data){if(data.type==='success'){card.body(data.value.joke);}});
-    },1000);
+      ajax({url: chuck, type:'json'},jokeSuccess,jokeFailure);
+    }
+  );
+}        
+function jokeSuccess (data) {
+  if(data.type === 'success'){
+    joke.body(data.value.joke); 
+    console.log('Joke:\n'+data.value.joke);
+  }
 }
-
-joke.on('click','up',displayJoke(joke));
-joke.on('click','down',displayJoke(joke));
-joke.on('click','select',function() {console.log(prettyObj(joke));});
+function jokeFailure (err) {
+  console.log('error: '+err);
+}
+/*joke.on('click','down',displayJoke(joke));
+joke.on('click','select',function() {joke.title('test test');});
 joke.on('click','back', function () {
   main.show();
   joke.hide();
 });
-
+*/
